@@ -3,12 +3,11 @@ package com.trido.springbootawsimageupload.filestore;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.trido.springbootawsimageupload.bucket.BucketName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.util.UUID;
+import java.io.InputStream;
+import java.util.Map;
 
 @Service
 public class FileStore {
@@ -20,12 +19,13 @@ public class FileStore {
         this.s3 = s3;
     }
 
-    public void save() {
-        PutObjectRequest request = new PutObjectRequest(BucketName.PROFILE_IMAGE.getBucketName(), UUID.randomUUID().toString(), new File("src/main/java/com/trido/springbootawsimageupload/images/test.jpeg"));
+    public void save(String path, String fileName, Map<String, String> optionMetadata, InputStream inputStream) {
+
         ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentType("image/jpeg");
-        request.setMetadata(metadata);
+        optionMetadata.forEach(metadata::addUserMetadata);
+        PutObjectRequest request = new PutObjectRequest(path, fileName, inputStream, metadata);
         s3.putObject(request);
+
     }
 
 }
